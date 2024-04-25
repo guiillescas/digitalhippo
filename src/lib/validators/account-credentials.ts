@@ -7,4 +7,4 @@ export const AuthCredentialsValidator = z.object({
     .min(6, { message: 'Password must be at least 6 characters long.' }),
 })
 
-export type SignUpFormProps = z.infer<typeof AuthCredentialsValidator>
+export type AuthCredentialsProps = z.infer<typeof AuthCredentialsValidator>

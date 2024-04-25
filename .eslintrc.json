@@ -20,6 +20,7 @@
   },
   "plugins": ["react", "@typescript-eslint", "import-helpers"],
   "rules": {
+    "@typescript-eslint/no-explicit-any": "off",
     "react/react-in-jsx-scope": "off",
     "@next/next/no-async-client-component": "off",
     "no-unused-vars": "warn",
