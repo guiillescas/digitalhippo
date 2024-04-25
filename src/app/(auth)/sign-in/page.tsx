@@ -1,6 +1,6 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 
 import { ZodError } from 'zod'
@@ -21,7 +21,20 @@ import {
 } from '@/lib/validators/account-credentials'
 import { cn } from '@/lib/utils'
 
-export default function SignUp() {
+export default function SignIn() {
+  const searchParams = useSearchParams()
+  const router = useRouter()
+  const isSeller = searchParams.get('as') === 'seller'
+  const origin = searchParams.get('origin')
+
+  function continueAsSeller() {
+    router.push('?as=seller')
+  }
+
+  function continueAsBuyer() {
+    router.replace('/sign-in', undefined)
+  }
+
   const {
     register,
     handleSubmit,
@@ -30,32 +43,36 @@ export default function SignUp() {
     resolver: zodResolver(AuthCredentialsValidator),
   })
 
-  const router = useRouter()
+  const { mutate: signIn, isLoading } = trpc.auth.signIn.useMutation({
+    onSuccess: () => {
+      toast.success('Sign in successfully')
 
-  const { mutate, isLoading } = trpc.auth.createPayloadUser.useMutation({
-    onError: (error) => {
-      if (error.data?.code === 'CONFLICT') {
-        toast.error('This email is already in use. Sign in instead?')
+      router.refresh()
 
-        return
-      }
-
-      if (error instanceof ZodError) {
-        toast.error(error.issues[0].message)
+      if (origin) {
+        router.push(`/${origin}`)
 
         return
       }
 
-      toast.error('Something went wrong. Please try again.')
+      if (isSeller) {
+        router.push('/sell')
+
+        return
+      }
+
+      router.push('/')
+      router.refresh()
     },
-    onSuccess: ({ sentToEmail }) => {
-      toast.success(`Verification email sent to ${sentToEmail}.`)
-      router.push(`/verify-email?to=${sentToEmail}`)
+    onError: (error) => {
+      if (error.data?.code === 'UNAUTHORIZED') {
+        toast.error('Invalid email or password.')
+      }
     },
   })
 
-  function handleSignUp({ email, password }: AuthCredentialsProps) {
-    mutate({ email, password })
+  function handleSignIn({ email, password }: AuthCredentialsProps) {
+    signIn({ email, password })
   }
 
   return (
@@ -64,21 +81,23 @@ export default function SignUp() {
         <div className='flex flex-col items-center space-y-2 text-center'>
           <Icons.logo className='h-20 w-20' />
 
-          <h1 className='text-2xl font-bold'>Create an account</h1>
+          <h1 className='text-2xl font-bold'>
+            Sign in to your {isSeller ? 'seller' : ''} account
+          </h1>
 
           <Link
             className={buttonVariants({
               variant: 'link',
               className: 'gap-1.5',
             })}
-            href='/sign-in'
+            href='/sign-up'
           >
-            Already have an account? Sign-in <ArrowRight className='h-4 w-4' />
+            Don&apos;t have an account? <ArrowRight className='h-4 w-4' />
           </Link>
         </div>
 
         <div className='grid gap-6'>
-          <form onSubmit={handleSubmit(handleSignUp)}>
+          <form onSubmit={handleSubmit(handleSignIn)}>
             <div className='grid gap-2'>
               <div className='grid gap-1 py-2'>
                 <Label htmlFor='email'>Email</Label>
@@ -111,11 +130,42 @@ export default function SignUp() {
                 )}
               </div>
 
-              <Button type='submit' disabled={isLoading}>
-                Sign up
-              </Button>
+              <Button type='submit'>Sign in</Button>
             </div>
           </form>
+
+          <div className='relative'>
+            <div
+              className='absolute inset-0 flex items-center'
+              aria-hidden='true'
+            >
+              <span className='w-full border-t' />
+            </div>
+
+            <div className='relative flex justify-center text-xs uppercase'>
+              <span className='bg-background px-2 text-muted-foreground'>
+                or
+              </span>
+            </div>
+          </div>
+
+          {isSeller ? (
+            <Button
+              onClick={continueAsBuyer}
+              variant='secondary'
+              disabled={isLoading}
+            >
+              Continue as customer
+            </Button>
+          ) : (
+            <Button
+              onClick={continueAsSeller}
+              variant='secondary'
+              disabled={isLoading}
+            >
+              Continue as seller
+            </Button>
+          )}
         </div>
       </div>
     </div>
