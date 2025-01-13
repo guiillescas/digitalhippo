@@ -28,13 +28,13 @@ if (!cached) {
   }
 }
 
-interface PayloadClientProps {
+interface Args {
   initOptions?: Partial<InitOptions>
 }
 
 export const getPayloadClient = async ({
   initOptions,
-}: PayloadClientProps = {}): Promise<Payload> => {
+}: Args = {}): Promise<Payload> => {
   if (!process.env.PAYLOAD_SECRET) {
     throw new Error('PAYLOAD_SECRET is missing')
   }
@@ -47,7 +47,7 @@ export const getPayloadClient = async ({
     cached.promise = payload.init({
       email: {
         transport: transporter,
-        fromAddress: 'onboarding@resend.dev',
+        fromAddress: 'hello@digital-hippo.com',
         fromName: 'DigitalHippo',
       },
       secret: process.env.PAYLOAD_SECRET,
@@ -58,10 +58,9 @@ export const getPayloadClient = async ({
 
   try {
     cached.client = await cached.promise
-  } catch (error: unknown) {
+  } catch (e: unknown) {
     cached.promise = null
-
-    throw error
+    throw e
   }
 
   return cached.client
