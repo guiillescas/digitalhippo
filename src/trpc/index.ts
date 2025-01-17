@@ -3,22 +3,23 @@ import { z } from 'zod'
 import { QueryValidator } from '../lib/validators/query'
 
 import { publicProcedure, router } from './trpc'
+import { paymentRouter } from './payment-router'
 import { authRouter } from './auth-router'
 import { getPayloadClient } from '../get-payload'
 
 export const appRouter = router({
   auth: authRouter,
+  payment: paymentRouter,
 
   getInfiniteProducts: publicProcedure
     .input(
       z.object({
         limit: z.number().min(1).max(100),
-        cursor: z.number().nullish(),
         query: QueryValidator,
       })
     )
-    .query(async ({ input }) => {
-      const { query, cursor } = input
+    .query(async ({ input }: { input: { query: any } }) => {
+      const { query } = input
       const { sort, limit, ...queryOptions } = query
 
       const payload = await getPayloadClient()
@@ -27,11 +28,11 @@ export const appRouter = router({
 
       Object.entries(queryOptions).forEach(([key, value]) => {
         parsedQueryOptions[key] = {
-          equals: value,
+          equals: value as string,
         }
       })
 
-      const page = cursor || 1
+      const page = 1
 
       const {
         docs: items,
