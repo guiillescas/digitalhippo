@@ -3,13 +3,12 @@
 import { ReactElement } from 'react'
 import Link from 'next/link'
 
-import { trpc } from '@/trpc/client'
+import { TQueryValidator } from '../lib/validators/query'
 
-import { TQueryValidator } from '@/lib/validators/query'
-
-import { Product } from '@/payload-types'
+import { Product } from '../payload-types'
 
 import ProductListing from './ProductListing'
+import { trpc } from '../trpc/client'
 
 interface ProductReelProps {
   title: string
@@ -23,18 +22,21 @@ const FALLBACK_LIMIT = 4
 export default function ProductReel(props: ProductReelProps): ReactElement {
   const { title, subTitle, href, query } = props
 
-  const { data: queryResults, isLoading } =
-    trpc.getInfiniteProducts.useInfiniteQuery(
-      {
-        limit: query.limit ?? FALLBACK_LIMIT,
-        query,
-      },
-      {
-        getNextPageParam: (lastPage) => lastPage.nextPage,
-      }
-    )
+  const timelineProcedure: any = trpc.getInfiniteProducts
 
-  const products = queryResults?.pages.flatMap((page) => page.items)
+  const { data: queryResults, isLoading } = timelineProcedure.useInfiniteQuery(
+    {
+      limit: query.limit ?? FALLBACK_LIMIT,
+      query,
+    },
+    {
+      getNextPageParam: (lastPage: { nextPage: number }) => lastPage.nextPage,
+    }
+  )
+
+  const products = queryResults?.pages.flatMap(
+    (page: { items: Product[] }) => page.items
+  )
 
   let map: (Product | null)[] = []
   if (products && products.length) {
