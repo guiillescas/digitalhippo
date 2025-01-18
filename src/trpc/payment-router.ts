@@ -6,7 +6,7 @@ import { stripe } from '../lib/stripe'
 
 import { Product } from '../payload-types'
 
-import { privateProcedure, router, publicProcedure } from './trpc'
+import { privateProcedure, router } from './trpc'
 import { getPayloadClient } from '../get-payload'
 
 export const paymentRouter = router({

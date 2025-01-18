@@ -9,7 +9,9 @@ export type CartItem = {
 
 type CartState = {
   items: CartItem[]
+  // eslint-disable-next-line no-unused-vars
   addItem: (product: Product) => void
+  // eslint-disable-next-line no-unused-vars
   removeItem: (productId: string) => void
   clearCart: () => void
 }

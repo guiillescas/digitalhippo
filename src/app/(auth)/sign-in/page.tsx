@@ -3,7 +3,6 @@
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 
-import { ZodError } from 'zod'
 import { toast } from 'sonner'
 import { useForm } from 'react-hook-form'
 import { ArrowRight } from 'lucide-react'

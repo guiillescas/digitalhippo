@@ -1,45 +1,48 @@
-"use client";
+'use client'
 
-import { PRODUCT_CATEGORIES } from "@/config";
-import { ReactElement, useEffect, useRef, useState } from "react";
-import NavItem from "./NavItem";
-import { useOnClickOutside } from "@/hooks/useOnClickOutside";
+import { ReactElement, useEffect, useRef, useState } from 'react'
+
+import { useOnClickOutside } from '@/hooks/useOnClickOutside'
+
+import { PRODUCT_CATEGORIES } from '@/config'
+
+import NavItem from './NavItem'
 
 export default function NavItems(): ReactElement {
-  const [activeIndex, setActiveIndex] = useState<null | number>(null);
+  const [activeIndex, setActiveIndex] = useState<null | number>(null)
 
-  const isAnyOpen = activeIndex !== null;
+  const isAnyOpen = activeIndex !== null
 
-  const navRef = useRef<HTMLDivElement | null>(null);
+  const navRef = useRef<HTMLDivElement | null>(null)
 
-  useOnClickOutside(navRef, () => setActiveIndex(null));
+  useOnClickOutside(navRef, () => setActiveIndex(null))
 
   useEffect(() => {
     const escHandler = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setActiveIndex(null);
+      if (event.key === 'Escape') {
+        setActiveIndex(null)
       }
-    };
+    }
 
-    document.addEventListener("keydown", escHandler);
+    document.addEventListener('keydown', escHandler)
 
     return () => {
-      document.removeEventListener("keydown", escHandler);
-    };
-  }, []);
+      document.removeEventListener('keydown', escHandler)
+    }
+  }, [])
 
   return (
-    <div className="flex gap-4 h-full" ref={navRef}>
+    <div className='flex h-full gap-4' ref={navRef}>
       {PRODUCT_CATEGORIES.map((category, index) => {
         const handleOpen = () => {
           if (activeIndex === index) {
-            setActiveIndex(null);
+            setActiveIndex(null)
           } else {
-            setActiveIndex(index);
+            setActiveIndex(index)
           }
-        };
+        }
 
-        const isOpen = index === activeIndex;
+        const isOpen = index === activeIndex
 
         return (
           <NavItem
@@ -49,8 +52,8 @@ export default function NavItems(): ReactElement {
             isAnyOpen={isAnyOpen}
             isOpen={isOpen}
           />
-        );
+        )
       })}
     </div>
-  );
+  )
 }
