@@ -1,23 +1,18 @@
 import { BeforeChangeHook } from 'payload/dist/collections/config/types'
 
 import { Access, CollectionConfig } from 'payload/types'
-import { User } from '../payload-types'
+import { User, Order } from '../payload-types'
 
 const addUser: BeforeChangeHook = ({ req, data }) => {
   const user = req.user as User | null
-
   return { ...data, user: user?.id }
 }
 
-const yourOwnOrPurchased: Access = async ({ req }) => {
+const yourOwnAndPurchased: Access = async ({ req }) => {
   const user = req.user as User | null
 
-  if (user?.role == 'admin') {
-    return true
-  }
-  if (!user) {
-    return false
-  }
+  if (user?.role === 'admin') return true
+  if (!user) return false
 
   const { docs: products } = await req.payload.find({
     collection: 'products',
@@ -29,11 +24,9 @@ const yourOwnOrPurchased: Access = async ({ req }) => {
     },
   })
 
-  const ownProductFilesIds = products
-    .map((product) => product.product_files)
-    .flat()
+  const ownProductFileIds = products.map((prod) => prod.product_files).flat()
 
-  const { docs: orders } = await req.payload.find({
+  const { docs: orders } = (await req.payload.find({
     collection: 'orders',
     depth: 2,
     where: {
@@ -41,16 +34,15 @@ const yourOwnOrPurchased: Access = async ({ req }) => {
         equals: user.id,
       },
     },
-  })
+  })) as unknown as { docs: Order[] }
 
   const purchasedProductFileIds = orders
     .map((order) => {
       return order.products.map((product) => {
-        if (typeof product === 'string') {
+        if (typeof product === 'string')
           return req.payload.logger.error(
             'Search depth not sufficient to find purchased file IDs'
           )
-        }
 
         return typeof product.product_files === 'string'
           ? product.product_files
@@ -62,7 +54,7 @@ const yourOwnOrPurchased: Access = async ({ req }) => {
 
   return {
     id: {
-      in: [...ownProductFilesIds, ...purchasedProductFileIds],
+      in: [...ownProductFileIds, ...purchasedProductFileIds],
     },
   }
 }
@@ -76,14 +68,14 @@ export const ProductFiles: CollectionConfig = {
     beforeChange: [addUser],
   },
   access: {
-    read: yourOwnOrPurchased,
+    read: yourOwnAndPurchased,
     update: ({ req }) => req.user.role === 'admin',
     delete: ({ req }) => req.user.role === 'admin',
   },
   upload: {
     staticURL: '/product_files',
     staticDir: 'product_files',
-    mimeTypes: ['image/*', 'font/*', 'applications/postsdcript'],
+    mimeTypes: ['image/*', 'font/*', 'application/postscript'],
   },
   fields: [
     {
