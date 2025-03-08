@@ -1,3 +1,4 @@
+import 'dotenv/config'
 import nextBuild from 'next/dist/build'
 
 import path from 'path'

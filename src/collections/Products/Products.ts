@@ -1,4 +1,5 @@
 import { stripe } from '../../lib/stripe'
+import { getStripeInstance } from '../../lib/server/stripe'
 
 import { BeforeChangeHook } from 'payload/dist/collections/config/types'
 import { PRODUCT_CATEGORIES } from '../../config'
@@ -12,6 +13,59 @@ const addUser: BeforeChangeHook<Product> = async ({ req, data }) => {
   return { ...data, user: user.id }
 }
 
+const syncWithStripe: BeforeChangeHook<Product> = async ({
+  req,
+  data,
+  operation,
+}) => {
+  const stripe = getStripeInstance()
+  if (!stripe) return data
+
+  try {
+    if (operation === 'create') {
+      if (!data.name || !data.price) {
+        throw new Error('Missing required fields: name or price')
+      }
+
+      const createdProduct = await stripe.products.create({
+        name: data.name,
+        default_price_data: {
+          currency: 'USD',
+          unit_amount: Math.round(data.price * 100),
+        },
+      })
+
+      return {
+        ...data,
+        stripeId: createdProduct.id,
+        priceId: createdProduct.default_price as string,
+      }
+    }
+
+    if (operation === 'update' && data.stripeId) {
+      if (!data.name) {
+        throw new Error('Missing required field: name')
+      }
+
+      const updatedProduct = await stripe.products.update(data.stripeId, {
+        name: data.name,
+        default_price: data.priceId!,
+      })
+
+      return {
+        ...data,
+        stripeId: updatedProduct.id,
+        priceId: updatedProduct.default_price as string,
+      }
+    }
+
+    return data
+  } catch (err) {
+    console.error('Error syncing with Stripe:', err)
+    return data
+  }
+}
+
 export const Products: CollectionConfig = {
   slug: 'products',
   admin: {
@@ -19,45 +73,7 @@ export const Products: CollectionConfig = {
   },
   access: {},
   hooks: {
-    beforeChange: [
-      addUser,
-      async (args) => {
-        if (args.operation === 'create') {
-          const data = args.data as Product
-
-          const createdProduct = await stripe.products.create({
-            name: data.name,
-            default_price_data: {
-              currency: 'USD',
-              unit_amount: Math.round(data.price * 100),
-            },
-          })
-
-          const updated: Product = {
-            ...data,
-            stripeId: createdProduct.id,
-            priceId: createdProduct.default_price as string,
-          }
-
-          return updated
-        } else if (args.operation === 'update') {
-          const data = args.data as Product
-
-          const updatedProduct = await stripe.products.update(data.stripeId!, {
-            name: data.name,
-            default_price: data.priceId!,
-          })
-
-          const updated: Product = {
-            ...data,
-            stripeId: updatedProduct.id,
-            priceId: updatedProduct.default_price as string,
-          }
-
-          return updated
-        }
-      },
-    ],
+    beforeChange: [addUser, syncWithStripe],
   },
   fields: [
     {
