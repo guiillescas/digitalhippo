@@ -1,5 +1,3 @@
-import { stripe } from '../../lib/stripe'
-
 import { BeforeChangeHook } from 'payload/dist/collections/config/types'
 import { PRODUCT_CATEGORIES } from '../../config'
 
@@ -8,7 +6,6 @@ import { Product } from '../../payload-types'
 
 const addUser: BeforeChangeHook<Product> = async ({ req, data }) => {
   const user = req.user
-
   return { ...data, user: user.id }
 }
 
@@ -18,18 +15,18 @@ const syncWithStripe: BeforeChangeHook<Product> = async ({
   operation,
 }) => {
   try {
+    // Importação dinâmica para evitar que o Payload bundle o código do Stripe
+    const { stripeActions } = await import('./stripe-actions')
+
     if (operation === 'create') {
       if (!data.name || !data.price) {
         throw new Error('Missing required fields: name or price')
       }
 
-      const createdProduct = await stripe.products.create({
-        name: data.name,
-        default_price_data: {
-          currency: 'USD',
-          unit_amount: Math.round(data.price * 100),
-        },
-      })
+      const createdProduct = await stripeActions.createProduct(
+        data.name,
+        data.price
+      )
 
       return {
         ...data,
@@ -43,10 +40,11 @@ const syncWithStripe: BeforeChangeHook<Product> = async ({
         throw new Error('Missing required field: name')
       }
 
-      const updatedProduct = await stripe.products.update(data.stripeId, {
-        name: data.name,
-        default_price: data.priceId!,
-      })
+      const updatedProduct = await stripeActions.updateProduct(
+        data.stripeId,
+        data.name,
+        data.priceId!
+      )
 
       return {
         ...data,
