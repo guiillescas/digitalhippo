@@ -1,5 +1,4 @@
 import { stripe } from '../../lib/stripe'
-import { getStripeInstance } from '../../lib/server/stripe'
 
 import { BeforeChangeHook } from 'payload/dist/collections/config/types'
 import { PRODUCT_CATEGORIES } from '../../config'
@@ -18,9 +17,6 @@ const syncWithStripe: BeforeChangeHook<Product> = async ({
   data,
   operation,
 }) => {
-  const stripe = getStripeInstance()
-  if (!stripe) return data
-
   try {
     if (operation === 'create') {
       if (!data.name || !data.price) {

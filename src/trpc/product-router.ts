@@ -1,7 +1,6 @@
 import { z } from 'zod'
-import { TRPCError } from '@trpc/server'
 
-import { getStripeInstance } from '../lib/server/stripe'
+import { stripe } from '../lib/stripe'
 
 import { router, privateProcedure } from './trpc'
 
@@ -14,9 +13,6 @@ export const productRouter = router({
       })
     )
     .mutation(async ({ input }) => {
-      const stripe = getStripeInstance()
-      if (!stripe) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR' })
-
       const { name, price } = input
 
       const createdProduct = await stripe.products.create({
@@ -42,9 +38,6 @@ export const productRouter = router({
       })
     )
     .mutation(async ({ input }) => {
-      const stripe = getStripeInstance()
-      if (!stripe) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR' })
-
       const { stripeId, name, priceId } = input
 
       const updatedProduct = await stripe.products.update(stripeId, {
