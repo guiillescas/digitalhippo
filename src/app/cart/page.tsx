@@ -205,11 +205,18 @@ export default function Cart(): ReactElement {
                 className='mt-6 w-full'
                 size='lg'
                 disabled={isLoading || items.length === 0}
-                onClick={() =>
+                onClick={() => {
+                  const { data: session } = trpc.auth.getSession.useQuery()
+
+                  if (!session?.user) {
+                    router.push('/sign-in?origin=cart')
+                    return
+                  }
+
                   createCheckoutSession({
                     productIds,
                   })
-                }
+                }}
               >
                 {isLoading ? (
                   <Loader2 className='mr-1.5 h-4 w-4 animate-spin' />
