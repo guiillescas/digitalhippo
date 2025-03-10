@@ -7,6 +7,7 @@ import { getServerSideUser } from '@/lib/payload-utils'
 import UserAccountNav from './UserAccountNav'
 import { buttonVariants } from './ui/button'
 import NavItems from './NavItems'
+import MobileNav from './MobileNav'
 import MaxWidthWrapper from './MaxWidthWrapper'
 import Icons from './Icons'
 import Cart from './Cart'
@@ -21,7 +22,7 @@ export default async function NavBar(): Promise<ReactElement> {
         <MaxWidthWrapper>
           <div className='border-b border-gray-200'>
             <div className='flex h-16 items-center'>
-              {/* TODO - Mobile nav */}
+              <MobileNav />
 
               <div className='ml-4 flex lg:ml-0'>
                 <Link href='/'>
