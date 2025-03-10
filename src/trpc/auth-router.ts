@@ -7,6 +7,19 @@ import { publicProcedure, router } from './trpc'
 import { getPayloadClient } from '../get-payload'
 
 export const authRouter = router({
+  getSession: publicProcedure.query(async () => {
+    const payload = await getPayloadClient()
+
+    const { docs: users } = await payload.find({
+      collection: 'users',
+      depth: 1,
+    })
+
+    const [user] = users
+
+    return { user }
+  }),
+
   createPayloadUser: publicProcedure
     .input(AuthCredentialsValidator)
     .mutation(async ({ input }) => {
