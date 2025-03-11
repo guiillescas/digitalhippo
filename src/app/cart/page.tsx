@@ -77,6 +77,7 @@ export default function Cart(): ReactElement {
                 </div>
 
                 <h3 className='text-2xl font-semibold'>Your cart is empty</h3>
+
                 <p className='text-center text-muted-foreground'>
                   Whoops! Nothing to show here yet.
                 </p>
