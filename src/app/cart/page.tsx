@@ -18,13 +18,17 @@ import { PRODUCT_CATEGORIES } from '@/config'
 
 export default function Cart(): ReactElement {
   const { items, removeItem } = useCart()
-
   const router = useRouter()
 
   const { mutate: createCheckoutSession, isLoading } =
     trpc.payment.createSession.useMutation({
       onSuccess: ({ url }) => {
         if (url) router.push(url)
+      },
+      onError: (error) => {
+        if (error.data?.code === 'UNAUTHORIZED') {
+          router.push('/sign-in?origin=cart')
+        }
       },
     })
 
@@ -205,17 +209,8 @@ export default function Cart(): ReactElement {
                 className='mt-6 w-full'
                 size='lg'
                 disabled={isLoading || items.length === 0}
-                onClick={() => {
-                  const { data: session } = trpc.auth.getSession.useQuery()
-
-                  if (!session?.user) {
-                    router.push('/sign-in?origin=cart')
-                    return
-                  }
-
-                  createCheckoutSession({
-                    productIds,
-                  })
+                onClick={async () => {
+                  createCheckoutSession({ productIds })
                 }}
               >
                 {isLoading ? (
