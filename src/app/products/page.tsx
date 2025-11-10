@@ -3,10 +3,11 @@
 import { ReactElement, useState } from 'react'
 import Link from 'next/link'
 
+import { Button } from '@/components/ui/button'
 import MaxWidthWrapper from '@/components/MaxWidthWrapper'
 import ProductReel from '@/components/ProductReel'
+
 import { PRODUCT_CATEGORIES } from '@/config'
-import { Button } from '@/components/ui/button'
 
 const BREADCRUMBS = [
   {
