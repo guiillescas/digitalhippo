@@ -1,6 +1,5 @@
 'use client'
 
-import { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 
@@ -13,7 +12,6 @@ import Cart from './Cart'
 const MobileNav = () => {
   const pathname = usePathname()
 
-  // whenever we click an item in the menu and navigate away, we want to close the menu
   const closeOnCurrent = (href: string) => {
     if (pathname === href) {
       return true

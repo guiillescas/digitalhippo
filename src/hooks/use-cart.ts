@@ -28,12 +28,14 @@ export const useCart = create<CartState>()(
     }),
     {
       name: '@digital-hippo:cart-storage',
-      storage: createJSONStorage(() => 
-        typeof window !== 'undefined' ? localStorage : ({
-          getItem: () => null,
-          setItem: () => {},
-          removeItem: () => {},
-        } as any)
+      storage: createJSONStorage(() =>
+        typeof window !== 'undefined'
+          ? localStorage
+          : ({
+              getItem: () => null,
+              setItem: () => {},
+              removeItem: () => {},
+            } as any)
       ),
     }
   )

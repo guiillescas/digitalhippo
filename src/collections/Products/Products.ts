@@ -10,7 +10,6 @@ const addUser: BeforeChangeHook<Product> = async ({ req, data }) => {
 }
 
 const syncWithStripe: BeforeChangeHook<Product> = async ({
-  req,
   data,
   operation,
 }) => {
