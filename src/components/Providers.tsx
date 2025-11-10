@@ -6,13 +6,25 @@ import { httpBatchLink } from '@trpc/client'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { trpc } from '@/trpc/client'
 
+function getBaseUrl() {
+  if (typeof window !== 'undefined') {
+    return window.location.origin
+  }
+
+  if (process.env.NEXT_PUBLIC_SERVER_URL) {
+    return process.env.NEXT_PUBLIC_SERVER_URL
+  }
+
+  return 'http://localhost:3000'
+}
+
 export default function Providers({ children }: PropsWithChildren) {
   const [queryClient] = useState(() => new QueryClient())
   const [trpxClient] = useState(() =>
     trpc.createClient({
       links: [
         httpBatchLink({
-          url: `${process.env.NEXT_PUBLIC_SERVER_URL}/api/trpc`,
+          url: `${getBaseUrl()}/api/trpc`,
           fetch(url, options) {
             return fetch(url, {
               ...options,

@@ -9,9 +9,7 @@ export type CartItem = {
 
 type CartState = {
   items: CartItem[]
-  // eslint-disable-next-line no-unused-vars
   addItem: (product: Product) => void
-  // eslint-disable-next-line no-unused-vars
   removeItem: (productId: string) => void
   clearCart: () => void
 }
@@ -30,7 +28,13 @@ export const useCart = create<CartState>()(
     }),
     {
       name: '@digital-hippo:cart-storage',
-      storage: createJSONStorage(() => localStorage),
+      storage: createJSONStorage(() => 
+        typeof window !== 'undefined' ? localStorage : ({
+          getItem: () => null,
+          setItem: () => {},
+          removeItem: () => {},
+        } as any)
+      ),
     }
   )
 )

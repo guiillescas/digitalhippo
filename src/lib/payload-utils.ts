@@ -8,16 +8,25 @@ export async function getServerSideUser(
 ) {
   const token = cookies.get('payload-token')?.value
 
-  const userResponse = await fetch(
-    `${process.env.NEXT_PUBLIC_SERVER_URL}/api/users/me`,
-    {
-      headers: {
-        Authorization: `JWT ${token}`,
-      },
+  try {
+    const userResponse = await fetch(
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/api/users/me`,
+      {
+        headers: {
+          Authorization: `JWT ${token}`,
+        },
+      }
+    )
+
+    if (!userResponse.ok) {
+      return { user: null }
     }
-  )
 
-  const { user } = (await userResponse.json()) as { user: User | null }
+    const { user } = (await userResponse.json()) as { user: User | null }
 
-  return { user }
+    return { user }
+  } catch (error) {
+    console.error('Erro ao buscar usuário:', error)
+    return { user: null }
+  }
 }
