@@ -14,6 +14,8 @@ import { PRODUCT_CATEGORIES } from '@/config'
 
 import { Product, ProductFile, User } from '@/payload-types'
 
+export const dynamic = 'force-dynamic'
+
 interface PageProps {
   searchParams: {
     [key: string]: string | string[] | undefined

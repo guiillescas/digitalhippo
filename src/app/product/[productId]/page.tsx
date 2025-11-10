@@ -17,6 +17,8 @@ import { Product } from '@/payload-types'
 
 import { getPayloadClient } from '../../../get-payload'
 
+export const dynamic = 'force-dynamic'
+
 interface ProductPageProps {
   params: {
     productId: string
@@ -162,7 +164,7 @@ export default async function ProductPage({
 
       <ProductReel
         href='/products'
-        query={{ category: product.category, limit: 4 }}
+        query={{ category: product.category, limit: 4, sort: 'desc' as const }}
         title={`Similar ${label}`}
         subTitle={`Browse similar high-quality ${label} just like "${product.name}"`}
       />
