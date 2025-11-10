@@ -24,7 +24,7 @@ export default function ProductReel(props: ProductReelProps): ReactElement {
 
   const timelineProcedure: any = trpc.getInfiniteProducts
 
-  const { data: queryResults, isLoading } = timelineProcedure.useInfiniteQuery(
+  const { data: queryResults, isLoading, error } = timelineProcedure.useInfiniteQuery(
     {
       limit: query.limit ?? FALLBACK_LIMIT,
       query,
