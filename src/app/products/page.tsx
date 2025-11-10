@@ -49,9 +49,9 @@ export default function ProductsPage(): ReactElement {
 
   function getQuery() {
     if (selectedCategory) {
-      return { category: selectedCategory, limit: 12, sort: 'desc' }
+      return { category: selectedCategory, limit: 12, sort: 'desc' as const }
     }
-    return { limit: 12, sort: 'desc' }
+    return { limit: 12, sort: 'desc' as const }
   }
 
   return (
