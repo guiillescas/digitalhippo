@@ -9,8 +9,8 @@ export type CartItem = {
 
 type CartState = {
   items: CartItem[]
-  addItem: (product: Product) => void
-  removeItem: (productId: string) => void
+  addItem: (_product: Product) => void
+  removeItem: (_productId: string) => void
   clearCart: () => void
 }
 

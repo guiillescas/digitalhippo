@@ -4,8 +4,8 @@ import { ReactElement, useState } from 'react'
 import Link from 'next/link'
 
 import { Button } from '@/components/ui/button'
-import MaxWidthWrapper from '@/components/MaxWidthWrapper'
 import ProductReel from '@/components/ProductReel'
+import MaxWidthWrapper from '@/components/MaxWidthWrapper'
 
 import { PRODUCT_CATEGORIES } from '@/config'
 
@@ -29,7 +29,7 @@ export default function ProductsPage(): ReactElement {
     if (!selectedCategory) {
       return 'Todos os Produtos'
     }
-    
+
     const category = PRODUCT_CATEGORIES.find(
       (cat) => cat.value === selectedCategory
     )
@@ -40,7 +40,7 @@ export default function ProductsPage(): ReactElement {
     if (!selectedCategory) {
       return 'Navegue por nossa coleção completa de ativos digitais de alta qualidade'
     }
-    
+
     const category = PRODUCT_CATEGORIES.find(
       (cat) => cat.value === selectedCategory
     )
@@ -122,4 +122,3 @@ export default function ProductsPage(): ReactElement {
     </MaxWidthWrapper>
   )
 }
-
